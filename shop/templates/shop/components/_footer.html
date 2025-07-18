@@ -1,0 +1,93 @@
+{% load static %}
+
+<footer class="text-white py-4 mt-5">
+  <div class="container">
+    <div class="row">
+
+      <!-- Left - Logo & Company Info -->
+      <div class="col-md-4 mb-3">
+        <div class="d-flex align-items-center mb-2">
+          {% if company_info %}
+          {% if company_info.logo %}
+          <img src="{{ company_info.logo.url }}" class="footer-logo" alt="Logo" style="height: 100px;">
+          {% endif %}
+          <div class="company-info-list">
+            <ul>
+              <li>
+                <h4>
+                  {{ company_info.name }}
+                </h4>
+                <div class="my-hrbold-white"></div>
+              </li>
+              <li>
+                <div class="footer-list-group">
+                  <span class="lucide--map-pin"></span>
+                  {{ company_info.address }}
+                </div>
+              </li>
+              <li>
+                <div class="footer-list-group">
+                  <span class="ion--call-outline"></span>
+                  {{ company_info.contact }}
+                </div>
+              </li>
+              {% if company_info and company_info.email %}
+              <li>
+                <div class="footer-list-group">
+                  <span class="iconamoon--email-light"></span>
+                  {{ company_info.email }}
+                </div>
+              </li>
+              {% endif %}
+            </ul>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Right - Links -->
+      <div class="col-md-8 mb-3 text-md-end">
+        <div class="d-flex flex-wrap justify-content-md-end gap-3">
+          {% for link in footer_links %}
+          {% if not forloop.first %}
+          <span class="text-muted">|</span>
+          {% endif %}
+          <a href="{{ link.url }}" {% if link.open_in_new_window %} target="_blank" {% endif %}
+            class="text-decoration-none text-white">
+            {{ link.name }}
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Social Icons -->
+    <div class="text-center mt-4">
+      {% if company_info.facebook_url %}
+      <a href="{{ company_info.facebook_url }}" class="text-white me-3">
+        <iconify-icon icon="mdi:facebook" width="24"></iconify-icon>
+      </a>
+      {% endif %}
+      {% if company_info.pinterest_url %}
+      <a href="{{ company_info.pinterest_url }}" class="text-white me-3">
+        <iconify-icon icon="mdi:pinterest" width="24"></iconify-icon>
+      </a>
+      {% endif %}
+      {% if company_info.instagram_url %}
+      <a href="{{ company_info.instagram_url }}" class="text-white me-3">
+        <iconify-icon icon="mdi:instagram" width="24"></iconify-icon>
+      </a>
+      {% endif %}
+      {% if company_info.tiktok_url %}
+      <a href="{{ company_info.tiktok_url }}" class="text-white">
+        <iconify-icon icon="mdi:tiktok" width="24"></iconify-icon>
+      </a>
+      {% endif %}
+
+      <div class="mt-2 text-muted">
+        <p class="mb-0 text-white">&copy; {% now "Y" %} {{ company_info.name }}</p>
+      </div>
+    </div>
+
+  </div>
+</footer>

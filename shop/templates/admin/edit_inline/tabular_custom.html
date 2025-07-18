@@ -1,0 +1,45 @@
+{% load i18n static admin_urls %}
+{% for inline_admin_formset in inline_admin_formsets %}
+  <fieldset class="module aligned {{ inline_admin_formset.classes }}">
+    <h2>{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</h2>
+    {{ inline_admin_formset.formset.management_form }}
+    <table>
+      <thead>
+        <tr>
+          {% for field in inline_admin_formset.fields %}
+            <th>{{ field.label }}</th>
+          {% endfor %}
+          <th>{% trans "Delete" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inline_admin_form in inline_admin_formset %}
+          <tr class="dynamic-form">
+            {% for fieldset in inline_admin_form %}
+              {% for line in fieldset %}
+                {% for field in line %}
+                  <td>
+                    {{ field.field }}  <!-- ✅ 正确渲染表单字段 -->
+                  </td>
+                {% endfor %}
+              {% endfor %}
+            {% endfor %}
+            <td>
+                {% if inline_admin_form.deletable %}
+                    {{ inline_admin_form.deletion_field.field }}
+                    <button type="button" class="delete-row btn btn-sm btn-danger" onclick="
+                    const checkbox = this.closest('tr').querySelector('input[name$=&quot;-DELETE&quot;]');
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        this.closest('tr').style.display = 'none';
+                    }
+                    ">Delete</button>
+                {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {{ inline_admin_formset.empty_form }}
+  </fieldset>
+{% endfor %}

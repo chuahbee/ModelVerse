@@ -1,0 +1,31 @@
+{% load static %}
+
+<section>
+  <div id="homeBanner" class="carousel slide mb-4" data-bs-ride="carousel">
+    <div class="carousel-inner">
+
+      {% if banners %}
+        {% for banner in banners %}
+          <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <a href="{{ banner.link_url|default:'#' }}">
+              <img src="{{ banner.image.url }}" class="d-block w-100" alt="{{ banner.title }}">
+            </a>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="carousel-item active">
+          <img src="{% static 'images/sample_size.jpg' %}" class="d-block w-100" alt="Default Banner">
+        </div>
+      {% endif %}
+
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#homeBanner" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#homeBanner" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div>
+</section>

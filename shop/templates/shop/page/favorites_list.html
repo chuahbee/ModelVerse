@@ -1,0 +1,15 @@
+<h2>我的收藏</h2>
+
+{% if favorite_products %}
+  <ul>
+    {% for product in favorite_products %}
+      <li>
+        <a href="{% url 'product_detail' product.id %}">
+          {{ product.title }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>你还没有收藏任何商品。</p>
+{% endif %}

@@ -1,0 +1,272 @@
+{% extends 'shop/base_subpage.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container product-detail-container">
+
+  <!-- left box -->
+  <div class="product-images text-center product-left-box">
+    <div class="main-image">
+      {% if product.image %}
+      <img src="{{ product.image.url }}" id="mainProductImage" class="img-fluid rounded">
+      {% endif %}
+    </div>
+    <div class="thumbnail-list d-flex justify-content-center gap-2 flex-wrap">
+      {% for image in product.images.all %}
+      <img src="{{ image.image.url }}" class="img-thumbnail thumbnail"
+        onclick="document.getElementById('mainProductImage').src=this.src">
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- right-box -->
+  <div class="product-right-box">
+
+    <div class="product-status">
+      {% if product.is_sale %}
+      <span class="badge-sale">SALE</span>
+      {% endif %}
+      {% if product.is_in_stock %}
+      <span class="badge-stock">INSTOCK</span>
+      {% else %}
+      <span class="badge-out">OUT OF STOCK</span>
+      {% endif %}
+    </div>
+
+    <div class="product-name">
+      <h2>{{ product.name }}</h2>
+      <div class="favorite-box">
+        <div id="favoriteBtn">
+          <iconify-icon id="favoriteIcon" {% if is_favorited %} icon="material-symbols:favorite" {% else %}
+            icon="material-symbols:favorite-outline" {% endif %}
+            class="{% if is_favorited %}favorited{% else %}not-favorited{% endif %} myfavorited">
+          </iconify-icon>
+        </div>
+        <a href="{% url 'favorites_list' %}">My favorites</a>
+      </div>
+    </div>
+
+    <div class="shortcut-info">
+      {{ product.description }}
+    </div>
+
+    <div class="price-box">
+      <h4 class="final-price">
+        RM{{ product.final_price|floatformat:2 }}
+
+        {% if product.is_sale %}
+        {% if product.discount_percent %}
+        <span class="discount-num">{{ product.discount_percent }}% OFF</span>
+        {% elif product.discount_amount %}
+        <span class="discount-num">-RM {{ product.discount_amount|floatformat:2 }}</span>
+        {% endif %}
+        {% endif %}
+      </h4>
+
+      {% if product.is_sale %}
+      {% if product.discount_percent or product.discount_amount %}
+      <span class="original-price" style="text-decoration: line-through; color: grey;">
+        RM{{ product.price|floatformat:2 }}
+      </span>
+      {% endif %}
+      {% endif %}
+    </div>
+
+    <!-- <div class="value-box">
+      {% for attribute, values in attributes.items %}
+      <div class="value-fillbox">
+        <span>{{ attribute }}:</span>
+        <div class="value-box-detials">
+          {% for value in values %}
+          <input type="radio" class="btn-check" name="attribute_values" id="attr_{{ attribute }}_{{ value.id }}"
+            value="{{ value.id }}" autocomplete="off">
+          <label class="btn my-grey-btn" for="attr_{{ attribute }}_{{ value.id }}">
+            {{ value.value }}
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div> -->
+
+    <input type="hidden" id="scoreInput">
+    <div class="star-rate" id="starRating" style="display: flex; gap: 5px; align-items: center;">
+      {% for i in "12345" %}
+      <iconify-icon icon="material-symbols:star-outline" data-value="{{ forloop.counter }}"
+        style="color: gray; font-size: 24px; cursor: pointer;"></iconify-icon>
+      {% endfor %}
+      <span id="selectedScore" style="margin-left: 10px; font-size: 18px;">
+        {{ average|floatformat:1 }}
+      </span>
+    </div>
+
+    <form action="{% url 'add_to_cart' product.id %}" method="post">
+      {% csrf_token %}
+
+      <div class="value-box">
+        {% for attribute, values in attributes.items %}
+        <div class="value-fillbox">
+          <span>{{ attribute }}:</span>
+          <div class="value-box-detials">
+            {% for value in values %}
+            <input type="radio" class="btn-check" name="attribute_values_{{ attribute }}"
+              id="attr_{{ attribute }}_{{ value.id }}" value="{{ value.id }}" required>
+            <label class="btn my-grey-btn" for="attr_{{ attribute }}_{{ value.id }}">
+              {{ value.value }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="mb-2 mt-3">
+        <label class="form-label">Quantity:</label>
+        <input type="number" name="quantity" value="1" min="1" class="form-control" style="width: 100px;">
+      </div>
+
+      {% if product.is_in_stock %}
+      <form method="post" action="{% url 'add_to_cart' product.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn col-black-btn mt-3">Add to cart</button>
+      </form>
+      {% else %}
+      <button class="btn col-black-btn mt-3" disabled>Out of stock</button>
+      {% endif %}
+
+    </form>
+
+    <div class="disciption-box">
+      <div class="disciption-detials">
+        <h5>Discription</h5>
+        {{ product.description }}
+      </div>
+
+      {% if product.size_chart %}
+      <div class="disciption-box">
+        <h5>Details Image</h5>
+        <img src="{{ product.size_chart.url }}" alt="Size Chart" style="max-width: 100%; height: auto;">
+      </div>
+      {% endif %}
+    </div>
+
+    <a href="{% url 'product_list' %}" class="back-icon-box"><span class="solar--alt-arrow-left-line-duotone"></span>All products</a>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const stars = document.querySelectorAll('#starRating iconify-icon');
+    const scoreDisplay = document.getElementById('selectedScore');
+
+    // 当前用户评分值（由后端返回或默认0）
+    let userScore = 0;
+
+    // ⭐ 打开页面时获取评分数据
+    fetch("{% url 'rate_product' product.id %}", {
+      method: 'GET',
+    })
+      .then(res => res.json())
+      .then(data => {
+        userScore = data.user_score || 0;
+        const avg = data.average || 0;
+        scoreDisplay.textContent = avg.toFixed(1);
+
+        // 初始化星星状态
+        stars.forEach(s => {
+          const starValue = parseInt(s.dataset.value);
+          if (starValue <= userScore) {
+            s.setAttribute('data-icon', 'material-symbols:star');
+            s.style.color = 'gold';
+          } else {
+            s.setAttribute('data-icon', 'material-symbols:star-outline');
+            s.style.color = 'gray';
+          }
+        });
+      });
+
+    // ⭐ 用户点击评分
+    stars.forEach(star => {
+      star.addEventListener('click', async () => {
+        const value = parseInt(star.dataset.value);
+
+        try {
+          const response = await fetch("{% url 'rate_product' product.id %}", {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': '{{ csrf_token }}',
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({ score: value })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            scoreDisplay.textContent = data.average.toFixed(1);
+
+            // 更新星星
+            stars.forEach(s => {
+              const starValue = parseInt(s.dataset.value);
+              if (starValue <= value) {
+                s.setAttribute('data-icon', 'material-symbols:star');
+                s.style.color = 'gold';
+              } else {
+                s.setAttribute('data-icon', 'material-symbols:star-outline');
+                s.style.color = 'gray';
+              }
+            });
+          } else {
+            alert('评分失败，请稍后再试。');
+          }
+        } catch (err) {
+          alert('连接错误，请稍后再试。');
+        }
+      });
+    });
+
+    // ✅ 收藏按钮功能
+    const favoriteBtn = document.getElementById('favoriteBtn');
+
+    if (favoriteBtn) {
+      favoriteBtn.addEventListener('click', async () => {
+        const isLoggedIn = "{{ request.user.is_authenticated|yesno:'true,false' }}" === "true";
+
+        if (!isLoggedIn) {
+          alert("请先登录或注册后才能收藏商品");
+          return;
+        }
+
+        try {
+          const response = await fetch("{% url 'toggle_favorite' product.id %}", {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': '{{ csrf_token }}',
+              'Content-Type': 'application/json'
+            }
+          });
+          const data = await response.json();
+          const icon = document.getElementById('favoriteIcon');
+
+          if (data.favorited) {
+            icon.setAttribute('icon', 'material-symbols:favorite');
+            icon.style.color = 'red';
+            icon.style.fontSize = '30px';
+          } else {
+            icon.setAttribute('icon', 'material-symbols:favorite-outline');
+            icon.style.color = 'black';
+            icon.style.fontSize = '30px';
+          }
+        } catch (err) {
+          alert("发生错误，请稍后再试");
+        }
+      });
+    }
+
+
+
+  });
+</script>
+
+{% endblock %}

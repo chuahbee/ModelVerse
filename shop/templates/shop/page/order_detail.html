@@ -1,0 +1,49 @@
+{% extends 'shop/base_subpage.html' %}
+
+{% block content %}
+<h2>订单明细</h2>
+
+<p>姓名: {{ order.name }}</p>
+<p>地址: {{ order.address }}</p>
+<p>邮编: {{ order.postcode }}</p>
+<p>城市: {{ order.city }}</p>
+<p>国家: {{ order.country }}</p>
+<p>总金额: RM{{ order.grand_total }}</p>
+
+<h3>商品列表</h3>
+
+<table border="1" cellspacing="0" cellpadding="5">
+  <thead>
+    <tr>
+      <th>商品名称</th>
+      <th>照片</th>
+      <th>单价</th>
+      <th>数量</th>
+      <th>小计</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in order.items.all %}
+    <tr>
+      <td>{{ item.product.name }}</td>
+      <td><img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" width="50"></td>
+      <td>RM{{ item.product.price|floatformat:2 }}</td>
+      <td>{{ item.quantity }}</td>
+      <td>RM{{ item.subtotal|floatformat:2|floatformat:2 }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- <ul>
+    {% for item in order.items.all %}
+        <li>
+            {{ item.product.name }} -
+            RM {{ item.price }} × {{ item.quantity }}
+            = RM {{ item.subtotal }}
+        </li>
+    {% endfor %}
+</ul> -->
+
+<a href="{% url 'product_list' %}" class="back-icon-box"><span class="solar--alt-arrow-left-line-duotone"></span>All products</a>
+{% endblock %}

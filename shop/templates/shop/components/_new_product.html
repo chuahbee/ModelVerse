@@ -1,0 +1,66 @@
+{% load static %}
+
+<section>
+    <div class="new-product-section mb-4">
+        <div class="category-list products">
+            {% if products %}
+            {% for product in new_products %}
+            <div class="product-item">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                {% else %}
+                <img src="{% static 'images/sample-product.jpg' %}" class="card-img-top" alt="No image">
+                {% endif %}
+                <div class="price-info">
+                    <div class="product-topbox">
+                        <!-- <h4>RM <span class="price-value">{{ product.final_price|floatformat:2 }}</span></h4> -->
+                        <a href="{% url 'product_detail' product.id %}">{{ product.name }}</a>
+                    </div>
+                    <div class="product-description">
+                        <p>{{ product.description }}</p>
+                    </div>
+                    <div class="price-box in-card-box">
+                        <h4 class="final-price">
+                            RM{{ product.final_price|floatformat:2 }}
+                            {% if product.is_sale %}
+                            {% if product.discount_percent %}
+                            <span class="discount-num">{{ product.discount_percent }}% OFF</span>
+                            {% elif product.discount_amount %}
+                            <span class="discount-num">-RM {{ product.discount_amount|floatformat:2 }}</span>
+                            {% endif %}
+                            {% endif %}
+                        </h4>
+
+                        {% if product.is_sale %}
+                        {% if product.discount_percent or product.discount_amount %}
+                        <span class="original-price" style="text-decoration: line-through; color: grey;">
+                            RM{{ product.price|floatformat:2 }}
+                        </span>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="product-status">
+                        {% if product.is_sale %}
+                        <span class="badge-sale">SALE</span>
+                        {% endif %}
+                        {% if product.is_preorder %}
+                        <span class="badge-preorder">PREORDER</span>
+                        {% endif %}
+                        {% if product.is_in_stock %}
+                        <span class="badge-stock">INSTOCK</span>
+                        {% else %}
+                        <span class="badge-out">OUT OF STOCK</span>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'product_detail' product.id %}" class="btn col-black-btn w-100 mt-2">
+                        View Details
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p>目前没有商品。</p>
+            {% endif %}
+        </div>
+    </div>
+</section>

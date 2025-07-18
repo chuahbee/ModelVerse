@@ -1,0 +1,165 @@
+{% extends 'shop/base_subpage.html' %}
+
+{% block content %}
+<div class="checkout-box-w">
+    <div class="header-box">
+        <span class="material-symbols--shopping-cart-checkout-rounded"></span>
+        <h2>Checkout</h2>
+    </div>
+
+    <form method="post" class="checkout-box" action="{% url 'process_checkout' %}">
+        {% csrf_token %}
+        <input type="hidden" name="grand_total" value="{{ grand_total }}">
+        <input type="hidden" name="coupon_code" value="{{ coupon_code }}">
+        <input type="hidden" name="discount" value="{{ discount }}">
+
+        <div class="chackout-left-box">
+            <h4 class="sub-tit subsub-tit">Receiver Info</h4>
+
+            <div class="mb-3">
+                <label>Name</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label>Email</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label>Phone</label>
+                <input type="text" name="phone" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label>Address</label>
+                <input type="text" name="address" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label>Postcode</label>
+                <input type="text" name="postcode" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label>City</label>
+                <input type="text" name="city" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label>State</label>
+                <input type="text" name="state" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label>Country</label>
+                <input type="text" name="country" class="form-control" required>
+            </div>
+        </div>
+
+
+        <div class="chackout-right-box">
+            <h4 class="sub-tit subsub-tit">Order Details</h4>
+
+            <!-- ✅ coupon input -->
+            <div class="coupon-box">
+                <!-- <label for="couponCode">Coupon Code</label> -->
+                <div class="input-group">
+                    <input type="text" id="couponCode" class="form-control" placeholder="Enter coupon code">
+                    <button type="button" id="applyCouponBtn" class="btn coupon-btn">
+                        Apply Coupon
+                    </button>
+                </div>
+                <div id="couponResult" class="note-box">If you have a coupon, please enter it above.</div>
+            </div>
+            <hr>
+            {% if coupon_code %}
+            <h6>Coupon "{{ coupon_code }}" applied.</h6>
+            <h6>Coupons and discounts: -RM {{ discount|floatformat:2 }}</h6>
+            {% endif %}
+            <ul class="tit-cart">
+                {% for item in cart_items %}
+                <li>
+                    <div class="box-group">
+                        <h6>
+                            {{ item.product.name }}
+                        </h6>
+                        {% if item.attribute_values.all %}
+                        {% for attr in item.attribute_values.all %}
+                        <div class="list-attr">
+                            {{ attr.attribute.name }}: <span>{{ attr.value }}</span>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                    <span>
+                        × {{ item.quantity }}
+                    </span>
+                </li>
+                {% endfor %}
+            </ul>
+            <p class="cart-subtotal">Product subtotal RM : <span>{{ total|floatformat:2 }}</span></p>
+            <hr class="my-hrbold">
+            <p class="cart-total">
+                Total RM :<span id="totalDisplay">{{ grand_total|floatformat:2 }}</span>
+            </p>
+            <hr class="my-hrbold">
+            {% if cart_items %}
+            <button type="submit" class="btn btn-dark w-100 mt-3">
+                Submit Order
+            </button>
+            {% else %}
+            <p>Your cart is empty, cannot checkout.</p>
+            {% endif %}
+            <a href="{% url 'product_list' %}" class="btn btn-outline-secondary w-100 mt-2">
+                Continue Shopping
+            </a>
+        </div>
+
+    </form>
+
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const applyBtn = document.getElementById("applyCouponBtn");
+
+        if (applyBtn) {
+            applyBtn.addEventListener("click", function () {
+                const code = document.getElementById("couponCode").value;
+
+                fetch("{% url 'apply_coupon_api' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({ code: code })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById("couponResult").innerHTML = `
+                        <span class="text-success">
+                            Coupon applied! Discount: RM ${data.discount.toFixed(2)}
+                        </span>
+                    `;
+                            document.querySelector("input[name='grand_total']").value = data.grand_total;
+                            document.getElementById("totalDisplay").textContent =
+                                `RM${data.grand_total.toFixed(2)}`;
+
+                            //拿discount counpon  info
+                            document.querySelector("input[name='coupon_code']").value = code;
+                            document.querySelector("input[name='discount']").value = data.discount.toFixed(2);
+                        } else {
+                            document.getElementById("couponResult").innerHTML = `
+                        <span style="color:red;">${data.message}</span>
+                    `;
+                        }
+                    });
+            });
+        }
+    });
+</script>
+
+
+{% endblock %}

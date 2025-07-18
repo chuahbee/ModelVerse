@@ -1,0 +1,86 @@
+{% extends 'shop/base_subpage.html' %}
+{% load shop_extras %}
+
+{% block content %}
+<div class="section-success">
+  <div class="checkout-header">
+    <h4>Order Submitted Successfully!</h4>
+    <span>Thank you, {{ order.name }}!</span>
+    <div class="contact-info">
+      Total Amount:<span class="note-list-style"> RM {{ order.grand_total|floatformat:2 }}</span>
+    </div>
+  </div>
+
+  <div class="top-box-group">
+    <div class="top-left">
+      <div class="order-details-list">
+        <h4>Order Details:</h4>
+        <div class="contact-info mb-4">
+          Please check your email <span class="note-list-style">{{ order.email }}</span>
+          for the order confirmation (Order ID: {{ order.id }})
+        </div>
+        <ul>
+          <li>
+            Order ID: <span>{{ order.id }}</span>
+          </li>
+          <li>
+            Address: <span>{{ order.address }}</span>
+          </li>
+          <li>
+            Postcode: <span>{{ order.postcode }}</span>
+          </li>
+          <li>
+            City: <span>{{ order.city }}</span>
+          </li>
+          <li>
+            Country: <span>{{ order.country }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="top-right">
+      <div class="my-cart-box checkout-box">
+        <div class="left-box">
+          <ul>
+            {% for item in order.items.all %}
+            <li>
+              <span class="item-name">{{ forloop.counter }}</span>
+              <div class="img-box">
+                <img src="{{ item.product.image.url }}" width="50">
+                {{ item.product.name }}
+              </div>
+
+              {% if item.attribute_values.all|length > 0 %}
+              <ul>
+                {% for attr in item.attribute_values.all %}
+                <li>{{ attr.attribute.name }}: {{ attr.value }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+              <div class="price-item">
+                Price:
+                <span class="price-value">RM {{ item.subtotal|div:item.quantity|floatformat:2 }} x {{ item.quantity }}</span>
+              </div>
+              <div class="price-item">
+                Total Price:
+                <span class="price-value">RM {{ item.subtotal|floatformat:2 }}</span>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+
+
+
+  <a href="{% url 'product_list' %}" class="back-icon-box"><span class="solar--alt-arrow-left-line-duotone"></span>All
+    products</a>
+</div>
+
+{% endblock %}

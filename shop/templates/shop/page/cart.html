@@ -1,0 +1,140 @@
+{% extends 'shop/base_subpage.html' %}
+{% load shop_extras %}
+
+{% block title %}购物车{% endblock %}
+
+{% block content %}
+<h4 class="sub-tit">
+    My cart
+</h4>
+
+<!-- goto cart page -->
+<div class="my-cart-box">
+    <div class="left-box">
+        {% if cart_items %}
+        <ul>
+            {% for item in cart_items %}
+            <li>
+                <span class="item-name">{{ item.product.name }}</span>
+                {% if item.product.image %}
+                <img src="{{ item.product.image.url }}">
+                {% endif %}
+                <div class="item-price">
+                    <div>
+                        <h4 class="meddle-size">
+                            RM{{ item.product.final_price|floatformat:2 }}<span> x {{ item.quantity }}</span>
+                        </h4>
+                        <div class="group-box font-small">
+                            <span class="text-muted text-decoration-line-through">
+                                RM{{ item.product.price|floatformat:2 }}
+                            </span>
+                            <span class="text-danger ">
+                                ({{ item.product.discount_percent|floatformat:0 }}% OFF)
+                            </span>
+                        </div>
+                    </div>
+                    <hr class="my-hr2">
+                    <div class="attribute-values">
+                        {% if item.attribute_values.all %}
+                        <ul>
+                            {% for attr in item.attribute_values.all %}
+                            <li>
+                                <span>{{ attr.value }}</span>
+                                {{ attr.attribute.name }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                    <!-- <hr class="my-hr2">
+                    <div class="attribute-values">
+                        <span>{{ item.quantity }}</span>
+                        Quantity
+                    </div> -->
+                </div>
+                <form method="post" action="{% url 'update_cart_item' item.id %}">
+                    {% csrf_token %}
+                    <select name="quantity" class="quantity-range-box">
+                        {% for i in quantity_range %}
+                        {% if item.quantity == i %}
+                        <option value="{{ i }}" selected>{{ i }}</option>
+                        {% else %}
+                        <option value="{{ i }}">{{ i }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn"><span class="update-icon"></span></button>
+                </form>
+
+                <!-- 删除按钮 -->
+                <form action="{% url 'remove_from_cart' item.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn"><span class="delete-icon"></span></button>
+                </form>
+
+            </li>
+            {% endfor %}
+        </ul>
+        <h6><span>Total : RM{{ total|floatformat:2 }}</span></h6>
+        {% else %}
+        <ul>
+            <li>
+                <span>empty item</span>
+                <h6><span>Total : RM 0.00</span></h6>
+            </li>
+        </ul>
+        {% endif %}
+    </div>
+    <div class="right-box">
+        <div class="card my-card">
+            <span class="box-tit">Order Details</span>
+            <ul class="count-list-box">
+                <li>
+                    Product subtotal: <span>RM{{ total|floatformat:2 }}</span>
+                </li>
+                <li>
+                    Total: <span>RM {{ grand_total|floatformat:2 }}</span>
+                </li>
+            </ul>
+            <div class="payment-process">
+                <a href="{% url 'checkout' %}">
+                    <button class="btn checkout-btn">
+                        Proceed to checkout
+                    </button>
+                </a>
+                <a href="{% url 'product_list' %}">
+                    <button class="btn continue-btn">
+                        Continue Shopping
+                    </button>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="related-box">
+    <h4 class="sub-tit">You may like this</h4>
+    <div class="category-filters">
+        <div class="category-list products">
+            {% for product in related_products %}
+            <div class="product-item">
+                <img src="{{ product.image.url }}" width="100">
+                <div class="price-info">
+                    <div class="product-topbox">
+                        <h4>RM <span class="price-value">{{ product.price|floatformat:2 }}</span></h4>
+                        <a href="{% url 'product_detail' product.id %}">{{ product.name }}</a>
+                    </div>
+                    <div class="product-description">
+                        <p>{{ product.description }}</p>
+                    </div>
+                    <a href="{% url 'product_detail' product.id %}" class="btn col-black-btn w-100 mt-2">
+                        View Details
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

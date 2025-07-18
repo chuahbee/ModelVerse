@@ -1,0 +1,43 @@
+{% extends "shop/base.html" %}
+{% load static %}
+
+{% block title %}home - MyShopMall{% endblock %}
+
+{% block content %}
+{% include "shop/components/_banner_carousel.html" %}
+<div class="container mycol">
+    <div class="categories-box">
+        <div class="categories-title">
+            <h2>Featured Categories</h2>
+            <p>Explore our top categories!</p>
+        </div>
+        {% include "shop/components/_category_filters.html" %}
+    </div>
+    
+    <div class="new-product-box">
+        <div class="new-product-title">
+            <h2>New Products</h2>
+            <p>Discover our latest arrivals!</p>
+        </div>
+        {% include "shop/components/_new_product.html" %}
+    </div>
+    
+    <div class="sale-box">
+        <div class="sale-box-title">
+            <h2>Hot Sale</h2>
+            <p>Check out our latest hot sale products!</p>
+        </div>
+        {% include "shop/components/_hot_sale_products.html" %}
+    </div>
+
+    <div class="new-product-box">
+        <div class="new-product-title">
+            <h2>Featured Products</h2>
+            <p>Explore our featured products!</p>
+        </div>
+        {% include "shop/components/_product_list.html" %}
+    </div>
+    {% include "shop/components/_member_section.html" %}
+</div>
+    
+{% endblock %}

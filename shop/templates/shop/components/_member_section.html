@@ -1,0 +1,47 @@
+{% load static %}
+
+<section>
+  <div class="member-section p-4 rounded mb-4">
+    <div class="row align-items-center">
+
+      <div class="col-md-4 member-section-right">
+        <div class="d-grid gap-2">
+          <a href="#" class="btn btn-secondary ">
+            New Member Registration here
+            <span class="hugeicons--ai-user"></span>
+          </a>
+          <a href="#" class="btn btn-secondary">
+            Member Benefits
+            <span class="solar--gift-outline"></span>
+          </a>
+        </div>
+      </div>
+
+      <div class="col-md-4 member-section-center text-center">
+        {% if company_info and company_info.logo %}
+        <img src="{{ company_info.logo.url }}" alt="{{ company_info.name|default:'Company' }} Logo" class="img-fluid">
+        {% else %}
+        <img src="{% static 'images/default-logo.png' %}" alt="Default Logo" class="img-fluid">
+        {% endif %}
+
+        {% if company_info and company_info.name %}
+        <span class="d-block mt-2">{{ company_info.name }}</span>
+        {% endif %}
+      </div>
+
+
+      <div class="col-md-4 text-center member-section-left">
+        <div class="mb-2">
+          <a href="#" class="btn w-100">
+            Download <br> Google Play
+          </a>
+        </div>
+        <div>
+          <a href="#" class="btn w-100">
+            Download <br> App Store
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

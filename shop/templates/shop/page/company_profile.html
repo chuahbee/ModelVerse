@@ -1,0 +1,17 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+  <h1>Company Profile</h1>
+  <p><strong>My Shop</strong> was established in 2023 with the vision to provide high-quality products at affordable prices. We specialize in:</p>
+  <ul>
+    <li>Quality products sourced locally and internationally.</li>
+    <li>Fast and reliable shipping services.</li>
+    <li>Excellent customer service and support.</li>
+    <li>Flexible return and exchange policies.</li>
+  </ul>
+  <p>Our mission is to deliver value to our customers and build lasting relationships. Thank you for choosing My Shop!</p>
+</div>
+<img src="{% static 'images/banner1.jpg' %}" class="img-fluid mb-4" alt="Banner">
+{% endblock %}

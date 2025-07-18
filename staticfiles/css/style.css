@@ -1,0 +1,49 @@
+.badge-sale {
+  background-color: red;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  margin-right: 5px;
+}
+.badge-stock {
+  background-color: green;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.8rem;
+}
+.badge-out {
+  background-color: gray;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.8rem;
+}
+.star-like {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+.star-like iconify-icon {
+  color: gold;
+}
+.star {
+  cursor: pointer;
+  font-size: 24px;
+  color: gray;
+}
+.star.selected {
+  color: gold;
+}
+.favorited {
+  color: red;
+}
+.not-favorited {
+  color: black;
+}
+tr.empty-form {
+    display: none !important;
+}
+
