@@ -2,7 +2,7 @@
   --my-main-col: #171717;
   --my-grey-col: #605f5f;
   --my-midlight-col: #808080;
-  --my-light-col: #bbbbbb;
+  --my-light-col: #838383;
   --my-splight-col: #ededed;
   --acid-green-col: #33ffc2;
   --growth-green-col: #33ff66;
@@ -203,7 +203,7 @@ tr.empty-form {
 }
 .btn.col-black-btn {
   background: var(--my-main-col);
-  color: var(--my-light-col);
+  color: #979797;
   width: 100%;
   border-radius: 50px;
 }

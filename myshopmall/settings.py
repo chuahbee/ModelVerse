@@ -42,18 +42,26 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.0.23']
 # Application definition
 
 INSTALLED_APPS = [
+    # 你的项目 app
+    'shop',
+    'mptt',
+
+    # filer 依赖（顺序：thumbnails -> polymorphic -> filer）
+    'easy_thumbnails',
+    'polymorphic',
+    'filer',
+
+    # 后台外观与文件浏览（注意顺序）
+    'grappelli',
+    'filebrowser',         # 通常放在 grappelli 后、admin 前
+
+    # Django 内置
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'filebrowser',
-    'grappelli', 
     'django.contrib.staticfiles',
-    'shop',
-    'mptt',
-    'easy_thumbnails',
-    'filer',
 ]
 
 MIDDLEWARE = [

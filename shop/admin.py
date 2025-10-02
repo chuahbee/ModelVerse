@@ -71,7 +71,8 @@ class AttributeValueFilter(admin.SimpleListFilter):
             return queryset.filter(product_attributes__value_id=self.value())
         return queryset
    
-AttributeValue
+    # AttributeValue
+
 class ProductAttributeInlineForm(forms.ModelForm):
     class Meta:
         model = ProductAttribute

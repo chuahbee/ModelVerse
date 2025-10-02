@@ -26,7 +26,7 @@ urlpatterns = [
     path('grappelli/', include('grappelli.urls')),
     path('admin/filebrowser/', site.urls),
     path('admin/', admin.site.urls),
-    path('shop/', include('shop.urls'))
+    # path('shop/', include('shop.urls'))
 ]
 
 if settings.DEBUG:
