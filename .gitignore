@@ -1,19 +1,23 @@
+# Django basics
+staticfiles/
+*.sqlite3
+
+# Media（按需要二选一，默认先不忽略）
+# media/
+# media/*
+!media/.gitkeep
+# !media/banners/**
+
 # Python
 __pycache__/
 *.py[cod]
-*.sqlite3
 
-# Virtual environment
-venv/
-env/
-
-# VSCode
-.vscode/
-
-# Django secret
+# Env & venv
 .env
+.venv/
+venv/
 
-# OS
+# Editors / OS
+.vscode/
 .DS_Store
 Thumbs.db
-/staticfiles/
