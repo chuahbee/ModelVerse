@@ -1,19 +1,24 @@
-# Python
+# ---- Django basics
+/staticfiles/          # collectstatic 输出（只忽略仓库根目录的 staticfiles）
+db.sqlite3             # 本地开发数据库（若你想提交，删掉这行）
+
+# ---- Media uploads（两选一，见下方“说明”）
+# /media/              # A. 全部忽略（推荐给正式项目）
+# 或者：
+# /media/*
+# !/media/.gitkeep     # B. 忽略上传，但允许放一个占位文件或示例目录
+# !/media/banners/**   #    例：保留 banners 示例图（按你需要改）
+
+# ---- Python
 __pycache__/
 *.py[cod]
-*.sqlite3
 
-# Virtual environment
-venv/
-env/
-
-# VSCode
-.vscode/
-
-# Django secret
+# ---- Env & venv
 .env
+.venv/
+venv/
 
-# OS
+# ---- Editors / OS
+.vscode/
 .DS_Store
 Thumbs.db
-/staticfiles/
