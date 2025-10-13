@@ -21,7 +21,7 @@
         {% if company_info and company_info.logo %}
         <img src="{{ company_info.logo.url }}" alt="{{ company_info.name|default:'Company' }} Logo" class="img-fluid">
         {% else %}
-        <img src="{% static 'images/default-logo.png' %}" alt="Default Logo" class="img-fluid">
+        <img src="{% static 'images/logo.png' %}" alt="Default Logo" class="img-fluid">
         {% endif %}
 
         {% if company_info and company_info.name %}

@@ -1,3 +1,8 @@
+import sys
+# import logging
+sys.stdout.reconfigure(encoding='utf-8')
+# logger = logging.getLogger(__name__)
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
@@ -184,7 +189,8 @@ def process_checkout(request):
 
     # 获取购物车内容
     cart_items = CartItem.objects.filter(session_key=session_key)
-    print("🛒 购物车商品数量：", cart_items.count())
+    print("购物车商品数量：", cart_items.count())
+    # logger.info(f"Cart items count: {cart_items.count()}") 如果换成logged方式输出
 
     if not cart_items.exists():
         messages.error(request, "购物车为空，无法结账。")
@@ -204,7 +210,7 @@ def process_checkout(request):
         coupon_code=coupon_code,
         discount=discount,
     )
-    print("🧾 创建订单成功，ID：", order.id)
+    print("创建订单成功，ID：", order.id)
 
     # 折扣比例计算
     total = sum(item.product.final_price * item.quantity for item in cart_items)
@@ -303,13 +309,13 @@ def process_checkout(request):
         email_msg.content_subtype = 'html'
         email_msg.encoding = 'utf-8'
         email_msg.send()
-        print("📧 邮件发送成功")
+        print("邮件发送成功")
     except Exception as e:
-        print("❌ 邮件发送失败：", e)
+        print("邮件发送失败：", e)
 
     # Debug 检查订单商品是否写入成功
     if not order.items.exists():
-        print("❗订单创建后没有 items，可能出错了！")
+        print("订单创建后没有 items，可能出错了！")
 
     return redirect(f"/shop/checkout/success/?order_id={order.id}")
         

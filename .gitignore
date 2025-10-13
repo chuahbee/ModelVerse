@@ -21,3 +21,6 @@ venv/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Ignore SQLite database
+*.sqlite3
