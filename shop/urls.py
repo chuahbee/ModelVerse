@@ -24,4 +24,6 @@ urlpatterns = [
     path('company_profile/', views.company_profile_view, name='company_profile'),
     path('about-us/', views.about_us_view, name='about_us'),
     path('shop/checkout/success/', views.checkout_success, name='checkout_success'),
+    path('category/<slug:slug>/', views.category_products, name='category_products'),
+
 ]

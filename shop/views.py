@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
 from urllib3 import request
 from .forms import CouponApplyForm
-from .models import Product, CartItem, Attribute, AttributeValue, ProductRating, Favorite, Order, OrderItem, Coupon, CompanyInfo, MenuItem,Banner
+from .models import Product, CartItem, Attribute, AttributeValue, ProductRating, Favorite, Order, OrderItem, Coupon, CompanyInfo, MenuItem,Banner,Category
 from django.views.decorators.http import require_POST
 from django.utils.timezone import now
 from django.views.decorators.http import require_http_methods
@@ -31,16 +31,32 @@ def home_view(request):
     products = Product.objects.all()
     new_products = Product.objects.order_by('-created_at')[:4]
 
+    hot_sale_products = Product.objects.filter(hot_sale=True).order_by('-id')
+
+    featured_categories = Category.objects.filter(is_featured=True).order_by('name')
+
+    # print("Hot Sale Products:", hot_sale_products)
 
     return render(request, 'shop/page/home.html', {
         'products': products,
         'new_products': new_products,
         'banners': banners,
         'company_info': company_info,
+        "hot_sale_products": hot_sale_products,
+        'featured_categories': featured_categories,
+    })
+
+def category_products(request, slug):
+    category = get_object_or_404(Category, slug=slug, is_active=True )
+    products = category.products.filter(categories=category, is_active=True).order_by('-created_at').distinct()
+
+    return render(request, 'shop/page/category_products.html', {
+        'category': category,
+        'products': products,
     })
 
 def product_list(request):
-    products = Product.objects.all()
+    products = Product.objects.filter(is_active=True)
     return render(request, 'shop/page/product_list.html', {'products': products})
 
 def add_to_cart(request, product_id):

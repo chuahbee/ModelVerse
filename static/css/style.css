@@ -60,6 +60,10 @@ footer {
   align-items: center;
   height: 35px;
 }
+#homeBanner {
+  max-height: 650px;
+  overflow: hidden;
+}
 .badge-sale {
   color: var(--red-col);
 }
@@ -764,18 +768,27 @@ tr.empty-form {
   color: #f6f6f6;
   min-width: 60%;
   max-width: 60%;
-  height: auto;
+  height: 286px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   text-align: right;
   font-size: var(--large-font-size);
-  gap: 15px;
+  gap: 20px;
   font-weight: var(--font-bold500);
   letter-spacing: 0.03rem;
+
   span {
     font-size: 0.97rem;
     font-weight: var(--font-bold-normal);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 显示两行 */
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 1.4em;
+    max-height: calc(1.4em * 2);
   }
   .btn {
     background: var(--acid-green-col);
@@ -787,12 +800,18 @@ tr.empty-form {
     display: flex;
     align-items: center;
     gap: 15px;
+
+    span {
+      height: auto;
+      font-weight: 500;
+    }
   }
   p {
-    font-size: 1.2rem;
+    font-size: 1.6rem;
     text-align: right;
-    line-height: 1rem;
-    font-weight: var(--font-bold-normal);
+    line-height: 1.6rem;
+    color: #33ffc2;
+    font-weight: var(--font-bold500);
   }
 }
 .member-section-center img {

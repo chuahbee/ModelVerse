@@ -1,4 +1,5 @@
 {% extends 'shop/base_subpage.html' %}
+{% load shop_extras %}
 
 {% block content %}
 <div class="checkout-box-w">
@@ -82,8 +83,9 @@
                 <li>
                     <div class="box-group">
                         <h6>
-                            {{ item.product.name }}
+                            {{ item.product.name }} 
                         </h6>
+                        <span> x {{ item.quantity }}</span>
                         {% if item.attribute_values.all %}
                         {% for attr in item.attribute_values.all %}
                         <div class="list-attr">
@@ -93,7 +95,8 @@
                         {% endif %}
                     </div>
                     <span>
-                        × {{ item.quantity }}
+                       RM{{ item.product.final_price|mul:item.quantity|floatformat:2 }}
+                        <!-- × {{ item.quantity }} -->
                     </span>
                 </li>
                 {% endfor %}

@@ -5,8 +5,9 @@ staticfiles/
 # Media（按需要二选一，默认先不忽略）
 # media/
 # media/*
-!media/.gitkeep
+# !media/.gitkeep
 # !media/banners/**
+/media/
 
 # Python
 __pycache__/

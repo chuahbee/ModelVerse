@@ -1,96 +1,36 @@
 {% load static %}
+{% load custom_tags %}
 
+{% if featured_categories %}
 <section>
     <div class="category-filters">
         <div class="category-list">
+            {% for category in featured_categories %}
+            <a href="{% url 'category_products' category.slug %}" class="category-item">
 
-            <a href="#" class="category-item">
-                <img src="{% static 'images/cg1.jpg' %}" alt="">
+                {% if category.image %}
+                <img src="{{ category.image.url }}" alt="{{ category.name }}">
+                {% else %}
+                <img src="/static/default-category.jpg" alt="{{ category.name }}">
+                {% endif %}
                 <div class="category-item-info">
-                    Original
-                    <span>High-quality art pieces</span>
-                    <p>Discover our exclusive collection of original artworks.</p>
+                    {{ category.name }}
+                    <span class="category-item-description">{{ category.description|truncatewords:10 }}</span>
                     <div class="btn">
-                        <span class="btn-text">Original</span>
+                        <span class="btn-text">Shop Now</span>
                         <iconify-icon icon="material-symbols:arrow-forward" width="20"></iconify-icon>
                     </div>
                 </div>
                 <div class="category-info">
+                    {% for i in category.hot_level|times %}
                     <span class="bxs--hot"></span>
-                    <span class="bxs--hot"></span>
-                    <span class="bxs--hot"></span>
+                    {% endfor %}
                 </div>
             </a>
-            <a href="#" class="category-item">
-                <img src="{% static 'images/cg2.jpg' %}" alt="">
-                <div class="category-item-info">
-                    Original
-                    <span>High-quality art pieces</span>
-                    <p>Discover our exclusive collection of original artworks.</p>
-                    <div class="btn">
-                        <span class="btn-text">Original</span>
-                        <iconify-icon icon="material-symbols:arrow-forward" width="20"></iconify-icon>
-                    </div>
-                </div>
-                <div class="category-info">
-                    <span class="bxs--hot"></span>
-                    <span class="bxs--hot"></span>
-                    <span class="bxs--hot"></span>
-                    <span class="bxs--hot"></span>
-                    <span class="bxs--hot"></span>
-                </div>
-            </a>
-            <a href="#" class="category-item">
-                <img src="{% static 'images/cg3.jpg' %}" alt="">
-                <div class="category-item-info">
-                    Original
-                    <span>High-quality art pieces</span>
-                    <p>Discover our exclusive collection of original artworks.</p>
-                    <div class="btn">
-                        <span class="btn-text">Original</span>
-                        <iconify-icon icon="material-symbols:arrow-forward" width="20"></iconify-icon>
-                    </div>
-                </div>
-                <div class="category-info">
-                    <span class="bxs--hot"></span>
-                    <span class="bxs--hot"></span>
-                </div>
-            </a>
-            <a href="#" class="category-item">
-                <img src="{% static 'images/cg1.jpg' %}" alt="">
-                <div class="category-item-info">
-                    Original
-                    <span>High-quality art pieces</span>
-                    <p>Discover our exclusive collection of original artworks.</p>
-                    <div class="btn">
-                        <span class="btn-text">Original</span>
-                        <iconify-icon icon="material-symbols:arrow-forward" width="20"></iconify-icon>
-                    </div>
-                </div>
-                <div class="category-info">
-                    <span class="bxs--hot"></span>
-                    <span class="bxs--hot"></span>
-                    <span class="bxs--hot"></span>
-                </div>
-            </a>
-            <a href="#" class="category-item">
-                <img src="{% static 'images/cg2.jpg' %}" alt="">
-                <div class="category-item-info">
-                    Original
-                    <span>High-quality art pieces</span>
-                    <p>Discover our exclusive collection of original artworks.</p>
-                    <div class="btn">
-                        <span class="btn-text">Original</span>
-                        <iconify-icon icon="material-symbols:arrow-forward" width="20"></iconify-icon>
-                    </div>
-                </div>
-                <div class="category-info">
-                    <span class="bxs--hot"></span>
-                    <span class="bxs--hot"></span>
-                    <span class="bxs--hot"></span>
-                </div>
-            </a>
+            {% endfor %}
         </div>
     </div>
 </section>
-
+{% else %}
+<p>No featured categories right now.</p>
+{% endif %}

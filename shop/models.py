@@ -3,7 +3,10 @@ from decimal import Decimal
 from django.contrib.auth.models import User
 from filebrowser.fields import FileBrowseField
 from filer.fields.image import FilerImageField
+from django.utils.text import slugify
 # Create your models here.
+
+HOT_LEVEL_CHOICES = [(i, str(i)) for i in range(1, 6)]
 
 class Attribute(models.Model):
     name = models.CharField(max_length=100)
@@ -21,10 +24,33 @@ class AttributeValue(models.Model):
     def __str__(self):
         return f"{self.attribute.name}: {self.value}"
     
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(unique=True, blank=True)
+    description = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+    image = models.ImageField(upload_to='category_images/', null=True, blank=True)
+    hot_level = models.IntegerField(default=0)
+    is_featured = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+    
 class Product(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    hot_sale = models.BooleanField(default=False, verbose_name="Hot Sale")
+
+    hot_level = models.PositiveIntegerField(default=0, choices=HOT_LEVEL_CHOICES, verbose_name="Hot Level")
+
+    categories = models.ManyToManyField(Category, related_name='products', blank=True)
 
     image = FilerImageField(
         null=True,
@@ -44,6 +70,7 @@ class Product(models.Model):
 
     is_in_stock = models.BooleanField(default=True)
     is_sale = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True) 
     is_preorder = models.BooleanField(default=False)
 
     # discount and sale
@@ -124,7 +151,6 @@ class CartItem(models.Model):
     def __str__(self):
         attrs = ", ".join([str(v) for v in self.attribute_values.all()])
         return f"{self.quantity} x {self.product.name} ({attrs})"
-
  
 class ProductAttribute(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_attributes')
@@ -238,3 +264,5 @@ class Banner(models.Model):
 
     def __str__(self):
         return self.title or f"Banner {self.id}"
+
+

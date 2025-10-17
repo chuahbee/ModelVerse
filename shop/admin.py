@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, Attribute, AttributeValue, ProductAttribute, ProductImage, Order, OrderItem, CompanyInfo, MenuItem, FooterLink, Banner, AttributeValue,Coupon
+from .models import Product, Attribute, AttributeValue, ProductAttribute, ProductImage, Order, OrderItem, CompanyInfo, MenuItem, FooterLink, Banner, AttributeValue,Coupon,Category
 from filebrowser.fields import FileBrowseField
 from django import forms
 from filer.fields.image import FilerImageField
@@ -164,10 +164,18 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ['is_in_stock', 'is_sale', 'is_preorder']
     list_editable = ['is_in_stock', 'is_sale', 'is_preorder']
     search_fields = ['name', 'description', 'price']
+
     list_display = ['name', 'price', 'is_in_stock', 'is_sale', 'is_preorder']
+    filter_horizontal = ['categories']
+
+    @admin.display(description="Categories")
+    def show_categories(self, obj):
+        return ", ".join([c.name for c in obj.categories.all()])
+
 
 if not admin.site.is_registered(Product):
     admin.site.register(Product, ProductAdmin)
+
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
@@ -179,6 +187,11 @@ class OrderItemInline(admin.TabularInline):
     def attribute_values_display(self, obj):
         return ", ".join(str(v) for v in obj.attribute_values.all())
     attribute_values_display.short_description = "Attribute Values"
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'slug', 'is_active', 'is_featured', 'hot_level', 'image']
+    prepopulated_fields = {'slug': ('name',)}
 
 @admin.register(Attribute)
 class AttributeAdmin(admin.ModelAdmin):
