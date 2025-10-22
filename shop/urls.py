@@ -25,5 +25,7 @@ urlpatterns = [
     path('about-us/', views.about_us_view, name='about_us'),
     path('shop/checkout/success/', views.checkout_success, name='checkout_success'),
     path('category/<slug:slug>/', views.category_products, name='category_products'),
+    path('order/<int:order_id>/invoice/', views.download_invoice, name='download_invoice'),
+    path("my-orders/", views.my_orders, name="my_orders"),
 
 ]

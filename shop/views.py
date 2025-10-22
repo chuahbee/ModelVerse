@@ -20,6 +20,18 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import send_mail, EmailMessage
 from django.conf import settings
 from django.contrib import messages
+from io import BytesIO
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from django.http import FileResponse
+from reportlab.lib import colors
+from reportlab.lib.units import mm
+from reportlab.platypus import Table, TableStyle, Paragraph, SimpleDocTemplate, Spacer, Image
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.pdfgen import canvas
+from reportlab.lib.colors import Color, black, HexColor
+from django.contrib.sessions.models import Session
+import os
 
 # Create your views here.
 def home_view(request):
@@ -46,6 +58,7 @@ def home_view(request):
         'featured_categories': featured_categories,
     })
 
+
 def category_products(request, slug):
     category = get_object_or_404(Category, slug=slug, is_active=True )
     products = category.products.filter(categories=category, is_active=True).order_by('-created_at').distinct()
@@ -55,9 +68,11 @@ def category_products(request, slug):
         'products': products,
     })
 
+
 def product_list(request):
     products = Product.objects.filter(is_active=True)
     return render(request, 'shop/page/product_list.html', {'products': products})
+
 
 def add_to_cart(request, product_id):
     if not request.session.session_key:
@@ -96,6 +111,7 @@ def add_to_cart(request, product_id):
 
     return redirect('cart_view')
 
+
 def update_cart_item(request, item_id):
     if request.method == 'POST':
         quantity = int(request.POST.get('quantity', 1))
@@ -103,6 +119,7 @@ def update_cart_item(request, item_id):
         item.quantity = quantity
         item.save()
     return redirect('cart_view')
+
 
 def cart_view(request):
     if not request.session.session_key:
@@ -129,6 +146,7 @@ def cart_view(request):
         'quantity_range': range(1, 11),
     }
     return render(request, 'shop/page/cart.html', context)
+
 
 def checkout_view(request):
     if not request.session.session_key:
@@ -183,8 +201,10 @@ def process_checkout(request):
 
     # 确保 session 存在
     if not request.session.session_key:
-        request.session.save()
+        request.session.create()
     session_key = request.session.session_key
+
+    print("当前生成的 session_key:", session_key)
 
     # 公司资料
     company_info = CompanyInfo.objects.first()
@@ -225,6 +245,7 @@ def process_checkout(request):
         grand_total=grand_total,
         coupon_code=coupon_code,
         discount=discount,
+        session_key=session_key,
     )
     print("创建订单成功，ID：", order.id)
 
@@ -345,6 +366,17 @@ def checkout_success(request):
     except Order.DoesNotExist:
         return redirect('/')
 
+    # 验证当前 session 是否与订单一致
+    current_session = request.session.session_key
+    if not current_session:
+        request.session.save()
+        current_session = request.session.session_key
+
+    if order.session_key and order.session_key != current_session:
+        return render(request, 'shop/page/access_denied.html', status=403)
+
+
+    # 验证通过后继续渲染页面
     order_items = order.items.all()
 
     return render(request, 'shop/page/checkout_success.html', {
@@ -441,7 +473,7 @@ def toggle_favorite(request, product_id):
         return JsonResponse({'favorited': False})
     else:
         return JsonResponse({'favorited': True})
-    
+
 
 @login_required
 def favorites_list(request):
@@ -520,14 +552,124 @@ def apply_coupon_api(request):
         })
 
 
+def download_invoice(request, order_id):
+    from .models import Order, CompanyInfo
+
+    try:
+        order = Order.objects.get(id=order_id)
+    except Order.DoesNotExist:
+        return redirect('/')
+
+    if order.session_key != request.session.session_key:
+        return render(request, 'shop/page/access_denied.html', status=403)
+
+    company = CompanyInfo.objects.first()
+
+    # 创建内存缓冲
+    buffer = BytesIO()
+    pdf = SimpleDocTemplate(buffer, pagesize=A4)
+    elements = []
+    styles = getSampleStyleSheet()
+
+    # ✅ Logo 和公司名称
+    if company and company.logo:
+        logo_path = company.logo.path
+        if os.path.exists(logo_path):
+            logo = Image(logo_path, width=40*mm, height=40*mm)
+            elements.append(logo)
+    company_name = company.name if company and company.name else "ModelVerse"
+    elements.append(Paragraph(f"<b>{company_name}</b>", styles["Title"]))
+    elements.append(Spacer(1, 12))
+
+    invoice_number = f"INV-{order.id:06d}" 
+    order_date = order.created_at.strftime("%d %b %Y, %I:%M %p") if order.created_at else now().strftime("%d %b %Y")
+
+    # ✅ 发票标题与客户信息
+    elements.append(Paragraph("<b>INVOICE</b>", styles["Heading2"]))
+    elements.append(Spacer(1, 6))
+    elements.append(Paragraph(f"<b>Invoice No:</b> {invoice_number}", styles["Normal"]))
+    elements.append(Paragraph(f"<b>Order Date:</b> {order_date}", styles["Normal"]))
+    elements.append(Paragraph(f"<b>Customer:</b> {order.name}", styles["Normal"]))
+    elements.append(Paragraph(f"<b>Email:</b> {order.email}", styles["Normal"]))
+    elements.append(Paragraph(f"<b>Address:</b> {order.address}", styles["Normal"]))
+    elements.append(Paragraph(f"City: {order.city}", styles["Normal"]))
+    elements.append(Paragraph(f"Country: {order.country}", styles["Normal"]))
+    elements.append(Spacer(1, 12))
+
+    # ✅ 商品明细表格
+    data = [["Product", "Qty", "Price", "Subtotal"]]
+    for item in order.items.all():
+        data.append([
+            item.product.name,
+            str(item.quantity),
+            f"RM {item.product.final_price:.2f}",
+            f"RM {item.subtotal:.2f}"
+        ])
+
+    # ✅ 添加总额行
+    data.append([
+        "",
+        "",
+        Paragraph("<b>Total</b>", styles["Normal"]),
+        Paragraph(f"<b>RM {order.grand_total:.2f}</b>", styles["Normal"])
+    ])
+
+    table = Table(data, colWidths=[70*mm, 20*mm, 30*mm, 30*mm])
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f2f2f2")),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("ALIGN", (1, 1), (-1, -1), "CENTER"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+    ]))
+
+    elements.append(table)
+    elements.append(Spacer(1, 24))
+
+    # 页脚
+    footer_text = f"Thank you for shopping with {company.name if company and company.name else 'Your Company'}!"
+
+    if company:
+        if company.address:
+            footer_text += f"<br/>{company.address}"
+        if company.email:
+            footer_text += f"<br/>{company.email}"
+        if company.contact:
+            footer_text += f"<br/>{company.contact}"
+
+        # 从 admin 数据取网站网址（有填才显示）
+        if getattr(company, "website", None) and company.website.strip():
+            footer_text += f"<br/><a href='{company.website}'>{company.website}</a>"
+
+    elements.append(Paragraph(footer_text, styles["Normal"]))
+
+    pdf.build(elements)
+    buffer.seek(0)
+    return FileResponse(buffer, as_attachment=True, filename=f"invoice_order_{order.id}.pdf")
+
+
+def my_orders(request):
+    session_key = request.session.session_key
+    if not session_key:
+        # 如果用户没有 session（例如没加购物车就访问）
+        request.session.create()
+        session_key = request.session.session_key
+
+    orders = Order.objects.filter(session_key=session_key).order_by('-created_at')
+    return render(request, 'shop/page/my_orders.html', {'orders': orders})
+
+
 def terms_of_service_view(request):
     return render(request, 'shop/page/terms_of_service.html')
+
 
 def privacy_policy_view(request):
     return render(request, 'shop/page/privacy_policy.html')
 
+
 def company_profile_view(request):
     return render(request, 'shop/page/company_profile.html')
+
 
 def about_us_view(request):
     return render(request, 'shop/page/about_us.html')

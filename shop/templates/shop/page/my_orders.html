@@ -1,0 +1,43 @@
+{% extends "shop/base.html" %}
+{% load static %}
+{% block title %}My Orders{% endblock %}
+
+
+{% block content %}
+<div class="container my-5">
+  <h2 class="mb-4">My Orders</h2>
+
+  {% if orders %}
+    <table class="table table-bordered">
+      <thead class="table-light">
+        <tr>
+          <th>Order ID</th>
+          <th>Date</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Invoice</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td>#{{ order.id }}</td>
+          <td>{{ order.created_at|date:"d M Y, H:i" }}</td>
+          <td>RM {{ order.grand_total|floatformat:2 }}</td>
+          <td>{{ order.status|default:"Completed" }}</td>
+          <td>
+            <a href="/order/{{ order.id }}/invoice/" class="btn btn-sm btn-primary">Download</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="text-center p-5 bg-light rounded shadow-sm">
+      <h5>You have not placed any orders yet.</h5>
+      <p class="text-muted mb-3">Start shopping now to view your orders here!</p>
+      <a href="{% url 'product_list' %}" class="btn btn-success">Go to Shop</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

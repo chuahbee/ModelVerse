@@ -186,6 +186,8 @@ class Order(models.Model):
     coupon_code = models.CharField(max_length=100, blank=True, null=True)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
+    session_key = models.CharField(max_length=100, blank=True, null=True)
+
     def __str__(self):
         return f"Order #{self.id} - {self.name}"
 
@@ -221,6 +223,7 @@ class CompanyInfo(models.Model):
         on_delete=models.SET_NULL,
         related_name='+'
     )
+    website = models.URLField(blank=True, null=True)
     facebook_url = models.URLField(blank=True, null=True)
     instagram_url = models.URLField(blank=True, null=True)
     tiktok_url = models.URLField(blank=True, null=True)
