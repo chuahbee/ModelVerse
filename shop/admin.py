@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, Attribute, AttributeValue, ProductAttribute, ProductImage, Order, OrderItem, CompanyInfo, MenuItem, FooterLink, Banner, AttributeValue,Coupon,Category
+from .models import Product, Attribute, AttributeValue, ProductAttribute, ProductImage, Order, OrderItem, CompanyInfo, MenuItem, FooterLink, Banner, AttributeValue, Coupon, Category, HomePageLayout, LandingPageSetting
 from filebrowser.fields import FileBrowseField
 from django import forms
 from filer.fields.image import FilerImageField
@@ -234,3 +234,22 @@ class FooterLinkAdmin(admin.ModelAdmin):
 class BannerAdmin(admin.ModelAdmin):
     list_display = ('title', 'is_active', 'order')
     list_editable = ('is_active', 'order')
+
+@admin.register(HomePageLayout)
+class HomePageLayoutAdmin(admin.ModelAdmin):
+    list_display = ('layout_type', 'is_active',
+                     'show_banner', 'show_categories', 'show_new_products', 
+                     'show_featured', 'show_hot_sale', 'updated_at')
+    list_editable = ('is_active', 
+                     'show_banner', 'show_categories', 'show_new_products', 
+                     'show_featured', 'show_hot_sale')
+    list_filter = ('layout_type', 'is_active')
+    ordering = ('-updated_at',)
+
+@admin.register(LandingPageSetting)
+class LandingPageSettingAdmin(admin.ModelAdmin):
+    list_display = ('id', 'message', 'heading', 'is_enabled', 'updated_at')
+    # list_editable = ('is_enabled',)
+    list_display_links = ('id', 'heading')
+
+

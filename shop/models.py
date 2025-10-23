@@ -268,4 +268,74 @@ class Banner(models.Model):
     def __str__(self):
         return self.title or f"Banner {self.id}"
 
+# 首页布局控制
+class HomePageLayout(models.Model):
+    LAYOUT_CHOICES = [
+        ("default", "Default Layout"),
+        ("modern", "Modern Layout"),
+        ("minimal", "Minimal Layout"),
+    ]
+
+    # 选择使用哪一种首页布局
+    layout_type = models.CharField(
+        max_length=50,
+        choices=LAYOUT_CHOICES,
+        default="default"
+    )
+
+    # 标记当前是否启用这个布局（先用最简单方式，允许保留多个方案，只启用其中一个）
+    is_active = models.BooleanField(default=True)
+
+    # 一些简单的可视化开关，方便你之后做“显示/隐藏”模块
+
+    THEME_CHOICES = [
+        ("light", "Light Mode"),
+        ("dark", "Dark Mode"),
+    ]
+
+    theme_mode = models.CharField(
+        max_length=10,
+        choices=THEME_CHOICES,
+        default="light"
+    )
+
+    show_categories = models.BooleanField(default=True)
+    show_new_products = models.BooleanField(default=True)
+
+    show_banner = models.BooleanField(default=True)
+    show_featured = models.BooleanField(default=True)
+    show_hot_sale = models.BooleanField(default=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self, *args, **kwargs):
+        # 当这个对象被设为 active 时，自动关闭其它 active 的布局
+        if self.is_active:
+            HomePageLayout.objects.exclude(id=self.id).update(is_active=False)
+        super().save(*args, **kwargs)
+
+        status = "Active" if self.is_active else "Inactive"
+        return f"{self.get_layout_type_display()} ({status})"
+    
+
+# Landing Page 控制
+class LandingPageSetting(models.Model):
+    
+    heading = models.CharField(max_length=255, blank=True, null=True, help_text="Landing page 标题（留空则使用公司名称）")
+    message = models.CharField(max_length=255, blank=True, null=True, help_text="显示在 landing page 上的说明文字")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    is_enabled = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        # 🟢 如果当前对象被启用，则自动关闭其它已启用的
+        if self.is_enabled:
+            LandingPageSetting.objects.exclude(id=self.id).update(is_enabled=False)
+        super().save(*args, **kwargs)
+        return f"Landing Page {'Enabled' if self.is_enabled else 'Disabled'}"
+
+    def __str__(self):
+        return f"Landing Page {'Enabled' if self.is_enabled else 'Disabled'}"
+
+
 

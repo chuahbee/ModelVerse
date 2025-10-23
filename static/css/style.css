@@ -1,4 +1,7 @@
 :root {
+  --theme-bg: #ededed;
+  --theme-text: #171717;
+  --theme-accent: #33ffc2;
   --my-main-col: #171717;
   --my-grey-col: #605f5f;
   --my-midlight-col: #808080;
@@ -29,10 +32,18 @@
   --border-radius5: 10px;
   --margin30: 30px;
   --border-line1px: 1px solid #171717;
+  --landing-page-bg:url('/static/images/bg.jpg') no-repeat center center fixed;
+}
+body.landing-bg {
+  background: var(--landing-page-bg)!important;
+  background-size: cover!important;
+  background-repeat: no-repeat!important;
+  background-attachment: fixed!important;
+  height: 100vh;
 }
 body {
-  color: var(--my-main-col);
-  background: var(--my-splight-col);
+  color: var(--my-main-col)!important;
+  background: var(--my-splight-col)!important;
   letter-spacing: normal;
   /* font-family: "Poppins", sans-serif!important; */
 }
@@ -46,6 +57,7 @@ h6 {
   padding: 0 !important;
   margin: 0 !important;
 }
+
 footer {
   background: #3b3b3b;
 }

@@ -1,0 +1,26 @@
+{% extends "shop/base.html" %}
+{% load static %}
+
+{% block title %}Modern Layout - MyShopMall{% endblock %}
+
+{% block content %}
+<div class="container text-center my-5">
+    <h1 style="color:#2196f3;">🏙️ Modern Layout Activated!</h1>
+    <p>This page is using <strong>home_modern.html</strong>.</p>
+
+    {% if layout.show_banner %}
+        <h3 class="mt-5">Banner Section</h3>
+        {% include "shop/components/_banner_carousel.html" %}
+    {% endif %}
+
+    {% if layout.show_featured %}
+        <h3 class="mt-5">Featured Products</h3>
+        {% include "shop/components/_product_list.html" %}
+    {% endif %}
+
+    {% if layout.show_hot_sale %}
+        <h3 class="mt-5">Hot Sale</h3>
+        {% include "shop/components/_hot_sale_products.html" %}
+    {% endif %}
+</div>
+{% endblock %}

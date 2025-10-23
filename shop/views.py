@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
 from urllib3 import request
 from .forms import CouponApplyForm
-from .models import Product, CartItem, Attribute, AttributeValue, ProductRating, Favorite, Order, OrderItem, Coupon, CompanyInfo, MenuItem,Banner,Category
+from .models import Product, CartItem, Attribute, AttributeValue, ProductRating, Favorite, Order, OrderItem, Coupon, CompanyInfo, MenuItem,Banner,Category, HomePageLayout, LandingPageSetting
 from django.views.decorators.http import require_POST
 from django.utils.timezone import now
 from django.views.decorators.http import require_http_methods
@@ -35,6 +35,24 @@ import os
 
 # Create your views here.
 def home_view(request):
+
+    landing_setting = LandingPageSetting.objects.filter(is_enabled=True).first()
+    if landing_setting and landing_setting.is_enabled:
+        return render(request, "shop/page/landing_page.html", {
+            "company_info": CompanyInfo.objects.first(),
+            "landing_setting": landing_setting,
+        })
+    
+    layout = HomePageLayout.objects.filter(is_active=True).first()
+
+    # 如果还没有启用任何 layout，显示 landing page
+    if not layout:
+        return render(request, "shop/page/landing_page.html",{
+            "company_info": CompanyInfo.objects.first(),
+        })
+    
+    layout_type = layout.layout_type
+    
     banners = Banner.objects.filter(is_active=True).order_by('order')
     company_info = CompanyInfo.objects.first()
 
@@ -47,16 +65,23 @@ def home_view(request):
 
     featured_categories = Category.objects.filter(is_featured=True).order_by('name')
 
-    # print("Hot Sale Products:", hot_sale_products)
-
-    return render(request, 'shop/page/home.html', {
+    context = {
         'products': products,
         'new_products': new_products,
         'banners': banners,
         'company_info': company_info,
-        "hot_sale_products": hot_sale_products,
+        'hot_sale_products': hot_sale_products,
         'featured_categories': featured_categories,
-    })
+        'layout': layout,
+    }
+
+    # 根据 layout_type 切换模板
+    if layout_type == "modern":
+        return render(request, "shop/page/home_modern.html", context)
+    elif layout_type == "minimal":
+        return render(request, "shop/page/home_minimal.html", context)
+    else:
+        return render(request, "shop/page/home.html", context)
 
 
 def category_products(request, slug):

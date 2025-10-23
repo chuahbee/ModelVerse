@@ -4,8 +4,13 @@
 {% block title %}home - MyShopMall{% endblock %}
 
 {% block content %}
+
+{% if layout.show_banner %}
 {% include "shop/components/_banner_carousel.html" %}
+{% endif %}
+
 <div class="container mycol">
+    {% if layout and layout.show_categories %}
     <div class="categories-box">
         <div class="categories-title">
             <h2>Featured Categories</h2>
@@ -13,7 +18,9 @@
         </div>
         {% include "shop/components/_category_filters.html" %}
     </div>
-    
+    {% endif %}
+
+    {% if layout and layout.show_new_products %}
     <div class="new-product-box">
         <div class="new-product-title">
             <h2>New Products</h2>
@@ -21,7 +28,9 @@
         </div>
         {% include "shop/components/_new_product.html" %}
     </div>
+    {% endif %}
     
+    {% if layout and layout.show_hot_sale %}
     <div class="sale-box">
         <div class="sale-box-title">
             <h2>Hot Sale</h2>
@@ -29,7 +38,9 @@
         </div>
         {% include "shop/components/_hot_sale_products.html" %}
     </div>
+    {% endif %}
 
+    {% if layout.show_featured %}
     <div class="new-product-box">
         <div class="new-product-title">
             <h2>Featured Products</h2>
@@ -37,6 +48,8 @@
         </div>
         {% include "shop/components/_product_list.html" %}
     </div>
+    {% endif %}
+
     {% include "shop/components/_member_section.html" %}
 </div>
     
